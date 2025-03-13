@@ -1,0 +1,10 @@
+repositories:
+  nav2_minimal_turtlebot_simulation:
+    type: git
+    url: https://github.com/ros-navigation/nav2_minimal_turtlebot_simulation.git
+    version: main
+
+  behaviortree_cpp:
+    type: git
+    url: https://github.com/BehaviorTree/BehaviorTree.CPP.git
+    version: master
