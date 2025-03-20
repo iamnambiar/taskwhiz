@@ -1,7 +1,7 @@
 ARG ROS_DISTRO=jazzy
 ARG DEBIAN_FRONTEND=noninteractive
 
-FROM osrf/ros:${ROS_DISTRO}-desktop-full AS base
+FROM osrf/ros:${ROS_DISTRO}-desktop-full AS overlay
 
 LABEL version="1.0"
 ENV ROS_DISTRO=${ROS_DISTRO}
@@ -15,6 +15,9 @@ RUN mkdir -p /colcon_ws/src/thirdparty
 WORKDIR /colcon_ws/src/thirdparty
 COPY dependencies.repos .
 RUN vcs import < dependencies.repos
+
+RUN mkdir -p /colcon_ws/src
+COPY taskwhiz .
 
 WORKDIR /colcon_ws
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
@@ -30,7 +33,7 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
 COPY ./docker/entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
 
-FROM base AS dev
+FROM overlay AS dev
 
 ARG UID=1000
 ARG GID=1000

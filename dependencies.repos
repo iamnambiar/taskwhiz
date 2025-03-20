@@ -3,8 +3,8 @@ repositories:
     type: git
     url: https://github.com/ros-navigation/nav2_minimal_turtlebot_simulation.git
     version: main
-
-  behaviortree_cpp:
+  
+  teleop_tools:
     type: git
-    url: https://github.com/BehaviorTree/BehaviorTree.CPP.git
+    url: https://github.com/ros-teleop/teleop_tools.git
     version: master
