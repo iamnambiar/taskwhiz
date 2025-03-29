@@ -11,18 +11,20 @@ RUN apt update && apt -y upgrade
 RUN apt-get update && apt-get install -y --no-install-recommends curl git python3-pip \
     libfuse2 qtbase5-dev libqt5svg5-dev libzmq3-dev libdw-dev
 
+RUN apt-get install -y ros-${ROS_DISTRO}-navigation2 ros-${ROS_DISTRO}-nav2-bringup
+
 RUN mkdir -p /colcon_ws/src/thirdparty
 WORKDIR /colcon_ws/src/thirdparty
 COPY dependencies.repos .
 RUN vcs import < dependencies.repos
 
-RUN mkdir -p /colcon_ws/src
-COPY taskwhiz .
+WORKDIR /colcon_ws/src/
+COPY taskwhiz ./taskwhiz
 
 WORKDIR /colcon_ws
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
     && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
-    && colcon build --symlink-install
+    && colcon build --symlink-install --executor sequential
 
 # WORKDIR /root/
 # RUN curl -o Groot2.AppImage https://s3.us-west-1.amazonaws.com/download.behaviortree.dev/groot2_linux_installer/Groot2-v1.6.1-x86_64.AppImage \

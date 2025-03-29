@@ -21,6 +21,9 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority
+      # For accessing bluetooth
+      - /dev:/dev
+      - /var/run/dbus:/var/run/dbus
   
   dev:
     extends: overlay

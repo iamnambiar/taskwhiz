@@ -1,17 +1,18 @@
-
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, AppendEnvironmentVariable
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.conditions import IfCondition
 
 def generate_launch_description():
+    # Locate directories for simulation, description, and bringup packages
     sim_directory = FindPackageShare('nav2_minimal_tb4_sim')
     description_dir = FindPackageShare('nav2_minimal_tb4_description')
     bringup_dir = FindPackageShare('taskwhiz_worlds')
 
+    # Declare launch arguments for namespace, simulation time, RViz usage, and headless mode
     namespace = LaunchConfiguration('namespace')
     declare_namespace_cmd = DeclareLaunchArgument('namespace', default_value='', description='Top-level namespace')
 
@@ -24,18 +25,24 @@ def generate_launch_description():
     rviz_config_file = LaunchConfiguration('rviz_config_file')
     declare_rviz_config_file_cmd = DeclareLaunchArgument('rviz_config_file', default_value=PathJoinSubstitution([bringup_dir, 'rviz', 'config.rviz']), description='Path to rviz config file')
 
+    headless = LaunchConfiguration('headless')
+    declare_headless_cmd = DeclareLaunchArgument('headless', default_value='False', description='Run in headless mode')
+
+    # Define robot's initial pose in the simulation
     pose = {
         'x': LaunchConfiguration('x_pose', default='-9.00'),
         'y': LaunchConfiguration('y_pose', default='9.00'),
         'Y': LaunchConfiguration('yaw', default='0.00'),
     }
     
-
+    # Paths to robot URDF and world SDF files
     robot_urdf = PathJoinSubstitution([description_dir, 'urdf', 'standard', 'turtlebot4.urdf.xacro'])
     world_sdf = PathJoinSubstitution([bringup_dir, 'worlds', 'maze.sdf'])
 
+    # Remap tf topics for compatibility
     remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static')]
 
+    # Launch the robot_state_publisher node to publish robot's state
     start_robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -49,6 +56,7 @@ def generate_launch_description():
         remappings=remappings
     )
 
+    # Launch RViz if enabled
     rviz_node = Node(
         condition=IfCondition(use_rviz),
         package='rviz2',
@@ -60,6 +68,7 @@ def generate_launch_description():
         remappings=remappings,
     )
 
+    # Include Gazebo simulation launch file
     gazebo_launcher = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
@@ -67,10 +76,12 @@ def generate_launch_description():
                 'launch',
                 'gz_sim.launch.py'
             ])),
-        launch_arguments={'gz_args': ['-r ', world_sdf],
+        launch_arguments={'gz_args': ['-r -s ', # remove -s to load gazebo gui
+                                      world_sdf],
                           'on_exit_shutdown': 'True'}.items(),
     )
 
+    # Include robot spawn launch file
     spawn_robot = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([sim_directory, 
@@ -83,6 +94,7 @@ def generate_launch_description():
                           'y_pose': pose['y'],
                           'yaw': pose['Y'],}.items())
 
+    # Return the complete launch description
     return LaunchDescription([
         declare_namespace_cmd,
         declare_use_sim_time_cmd,
