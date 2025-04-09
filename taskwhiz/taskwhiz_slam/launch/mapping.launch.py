@@ -96,6 +96,7 @@ def generate_launch_description():
     return LaunchDescription([
         declare_use_sim_time_cmd,
         declare_slam_param_file,
+        declare_map_url,
         start_async_lifecycle_node,
         map_saver_server_node,
         map_saver_client_node,

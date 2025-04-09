@@ -76,7 +76,7 @@ def generate_launch_description():
                 'launch',
                 'gz_sim.launch.py'
             ])),
-        launch_arguments={'gz_args': ['-r -s ', # remove -s to load gazebo gui
+        launch_arguments={'gz_args': ['-r ', # remove -s to load gazebo gui
                                       world_sdf],
                           'on_exit_shutdown': 'True'}.items(),
     )

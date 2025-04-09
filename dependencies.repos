@@ -3,13 +3,8 @@ repositories:
     type: git
     url: https://github.com/ros-navigation/nav2_minimal_turtlebot_simulation.git
     version: main
-  
-  # teleop_tools:
-  #   type: git
-  #   url: https://github.com/ros-teleop/teleop_tools.git
-  #   version: master
+ 
   ros2-teleop-tools:
     type: git
     url: https://github.com/iamnambiar/ros2-teleop-tools.git
     version: main
-  
