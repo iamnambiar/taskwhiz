@@ -1,5 +1,5 @@
-#ifndef TASKWHIZ_SLAM__MAP_SAVER_HPP
-#define TASKWHIZ_SLAM__MAP_SAVER_HPP
+#ifndef TASKWHIZ_UTILS__MAP_SAVER_CLIENT_HPP
+#define TASKWHIZ_UTILS__MAP_SAVER_CLIENT_HPP
 
 #include <string>
 
@@ -9,12 +9,12 @@
 #include "nav2_msgs/srv/save_map.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 
-namespace taskwhiz_slam
+namespace taskwhiz_utils
 {
-    class MapSaver : public nav2_util::LifecycleNode
+    class MapSaverClient : public nav2_util::LifecycleNode
     {
     public:
-        MapSaver();
+    MapSaverClient();
 
         // Lifecycle transitions
         nav2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State & state) override;
@@ -33,4 +33,4 @@ namespace taskwhiz_slam
     };
 }   // namespace taskwhiz_slam
 
-#endif  // TASKWHIZ_SLAM__MAP_SAVER_HPP
+#endif  // TASKWHIZ_UTILS__MAP_SAVER_CLIENT_HPP

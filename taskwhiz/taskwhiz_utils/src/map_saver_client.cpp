@@ -1,53 +1,53 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "nav2_msgs/srv/save_map.hpp"
-#include "taskwhiz_slam/map_saver.hpp"
+#include "taskwhiz_utils/map_saver_client.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 
-namespace taskwhiz_slam
+namespace taskwhiz_utils
 {
-    MapSaver::MapSaver() : nav2_util::LifecycleNode("taskwhiz_map_saver_node")
+    MapSaverClient::MapSaverClient() : nav2_util::LifecycleNode("taskwhiz_map_saver_client_node")
     {
         this->declare_parameter("map_save_path", "");
     }
 
-    nav2_util::CallbackReturn MapSaver::on_configure(const rclcpp_lifecycle::State &)
+    nav2_util::CallbackReturn MapSaverClient::on_configure(const rclcpp_lifecycle::State &)
     {
         this->get_parameter("map_save_path", map_url_);
         save_map_client_ = this->create_client<nav2_msgs::srv::SaveMap>("/map_saver/save_map");
         save_timer_ = this->create_wall_timer(std::chrono::seconds(30),
-                                              std::bind(&MapSaver::save_map, this));
+                                              std::bind(&MapSaverClient::save_map, this));
         save_timer_->cancel();
         RCLCPP_INFO(this->get_logger(), "MapSaver configured.");
         return nav2_util::CallbackReturn::SUCCESS;
     }
-    nav2_util::CallbackReturn MapSaver::on_activate(const rclcpp_lifecycle::State &)
+    nav2_util::CallbackReturn MapSaverClient::on_activate(const rclcpp_lifecycle::State &)
     {
         createBond();
         save_timer_->reset();
-        RCLCPP_INFO(this->get_logger(), "MapSaver activated.");
+        RCLCPP_INFO(this->get_logger(), "MapSaverClient activated.");
         return nav2_util::CallbackReturn::SUCCESS;
     }
-    nav2_util::CallbackReturn MapSaver::on_deactivate(const rclcpp_lifecycle::State &)
+    nav2_util::CallbackReturn MapSaverClient::on_deactivate(const rclcpp_lifecycle::State &)
     {
         destroyBond();
         save_timer_->cancel();
-        RCLCPP_INFO(this->get_logger(), "MapSaver deactivated.");
+        RCLCPP_INFO(this->get_logger(), "MapSaverClient deactivated.");
         return nav2_util::CallbackReturn::SUCCESS;
     }
-    nav2_util::CallbackReturn MapSaver::on_cleanup(const rclcpp_lifecycle::State &)
+    nav2_util::CallbackReturn MapSaverClient::on_cleanup(const rclcpp_lifecycle::State &)
     {
         save_timer_.reset();
         save_map_client_.reset();
-        RCLCPP_INFO(this->get_logger(), "MapSaver cleaned up.");
+        RCLCPP_INFO(this->get_logger(), "MapSaverClient cleaned up.");
         return nav2_util::CallbackReturn::SUCCESS;
     }
-    nav2_util::CallbackReturn MapSaver::on_shutdown(const rclcpp_lifecycle::State &)
+    nav2_util::CallbackReturn MapSaverClient::on_shutdown(const rclcpp_lifecycle::State &)
     {
-        RCLCPP_INFO(this->get_logger(), "MapSaver shutdown.");
+        RCLCPP_INFO(this->get_logger(), "MapSaverClient shutdown.");
         return nav2_util::CallbackReturn::SUCCESS;
     }
-    void MapSaver::save_map()
+    void MapSaverClient::save_map()
     {
         if (!save_map_client_->wait_for_service(std::chrono::milliseconds(100)))
         {
@@ -73,12 +73,12 @@ namespace taskwhiz_slam
             }
         );
     }
-}
+}       // namespace taskwhiz_utils
 
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<taskwhiz_slam::MapSaver>();
+    auto node = std::make_shared<taskwhiz_utils::MapSaverClient>();
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(node->get_node_base_interface());
     executor.spin();
